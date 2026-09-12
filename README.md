@@ -1,45 +1,31 @@
-<details>
-<summary>View editable Mermaid source</summary>
+LUMO Automatic Data Synchronisation Architecture
+
+This architecture shows how LUMO securely collects authorised student information, validates the retrieved data, prevents duplicate records, and stores new or updated information in Supabase PostgreSQL.
 
 flowchart TD
-    Student([Student]) --> App["LUMO Mobile App"]
-    App --> Chat["AI Chat Box<br/>Receive student question"]
-    Chat --> Router{"Question type?"}
+    Student([Student]) --> App["LUMO Mobile App<br/>Manage connections<br/>Manual input<br/>Review synchronised data"]
 
-    Router -->|Stress| Stress["Stress Assistant<br/>Ask focused questions<br/>Explain stress level and causes"]
-    Router -->|Assignment| Assignment["Assignment Task Assistant<br/>Understand assignment difficulty"]
-    Router -->|Both| Stress
-    Router -->|Both| Assignment
+    App -->|Connect or disconnect| Consent["Connection and Consent Manager<br/>Grant or revoke permission"]
 
-    Stress --> Calculator["Stress Calculation Engine<br/>Schedule pressure: 35%<br/>Deadline urgency: 25%<br/>Exam demand: 15%<br/>Behaviour change: 15%<br/>Student check-in: 10%"]
-    Data[("Supabase PostgreSQL<br/>Schedules, deadlines, health summaries,<br/>screen time, check-ins and assignments")] <--> Calculator
+    Consent -->|OAuth permission| Calendar["Google Calendar API"]
+    Consent -->|API or ICS access| Moodle["Moodle API or Subscribed ICS URL"]
+    Consent -->|Start first synchronisation| Trigger["Automatic Sync Trigger<br/>Initial sync<br/>Scheduled sync<br/>Source update"]
+    Consent -->|Device permission| Phone["Phone Device APIs<br/>Health data<br/>Screen-time data"]
 
-    Calculator --> Level["Stress Result<br/>Stable, Rising or High Risk<br/>Main causes and confidence"]
-    Level --> Safety{"Immediate safety<br/>concern?"}
-    Safety -->|Yes| Support["Stop productivity advice<br/>Show university or emergency support"]
-    Safety -->|No| Response["AI Response Coordinator"]
+    Calendar -->|Calendar events| Collection["Data Collection Service<br/>Retrieve permitted information"]
+    Moodle -->|Academic events| Collection
+    Trigger -->|Start automatic synchronisation| Collection
+    Phone -->|Device summaries| Collection
+    App -->|Manual input| Collection
 
-    Assignment --> Breakdown["Task Breakdown Engine<br/>Create steps<br/>Estimate duration<br/>Set priorities"]
-    Data <--> Breakdown
-    Breakdown --> Gate["Feasibility Gate<br/>Check deadlines, fixed commitments,<br/>recovery time, conflicts and capacity"]
-    Gate --> Feasible{"Plan feasible?"}
+    Collection -->|Retrieved data| Validation["Validation and Normalisation<br/>Check required fields<br/>Standardise date and time<br/>Classify data source"]
 
-    Feasible -->|No| Shortfall["Explain remaining shortfall<br/>Suggest extension, delegation<br/>or renegotiation"]
-    Feasible -->|Yes| Preview["Show proposed plan preview"]
-    Preview --> Approval{"Student approves?"}
-    Approval -->|Yes| Save["Save approved plan"]
-    Approval -->|No| Unchanged["Keep schedule unchanged"]
+    Validation -->|Valid records| Duplicate["Duplicate Detection<br/>Check source ID and event ID"]
 
-    Save --> Data
-    Support --> Response
-    Shortfall --> Response
-    Save --> Response
-    Unchanged --> Response
+    Duplicate -->|New or changed records| Upsert["Database Upsert Service<br/>Insert new records<br/>Update existing records"]
 
-    Response --> Result["AI Chat Box<br/>Display explanation, advice or plan"]
-    Result --> End(( ))
+    Upsert -->|Insert or update| Database["Supabase PostgreSQL<br/>Users<br/>Connections<br/>Commitments<br/>Deadlines<br/>Daily summaries<br/>Sync history"]
 
-    classDef endpoint fill:#000000,stroke:#000000,color:#000000;
-    class End endpoint;
+    Database -->|Synchronisation result| Status["Sync Status<br/>Successful<br/>Failed<br/>Last synchronised time"]
 
-</details>
+    Status -->|Display status and data| App
