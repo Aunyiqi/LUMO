@@ -1,52 +1,44 @@
-UMO AI Chat Box Architecture
+LUMO AI Chat Box Architecture
 
-The LUMO AI Chat Box is a single student interface that routes each message to the Stress Assistant, Assignment Task Assistant, or both services. A deterministic engine calculates the stress estimate, while the AI explains the result, breaks assignments into manageable steps, and proposes only changes that pass the Feasibility Gate and receive student approval.
+The AI Chat Box provides one interface for two specialised services. The Intent Router sends stress-related questions to the Stress Assistant and assignment-related questions to the Assignment Task Assistant. When a question involves both issues, both assistants contribute to a single coordinated response.
 
 flowchart TD
     Student([Student]) --> App["LUMO Mobile App"]
     App --> Chat["AI Chat Box<br/>Receive student question"]
-    Chat --> Router["Intent and Context Router<br/>Identify required support"]
+    Chat --> Router{"Question type?"}
 
-    Router --> StressNeeded{"Stress support<br/>needed?"}
+    Router -->|Stress| Stress["Stress Assistant<br/>Ask focused questions<br/>Explain stress level and causes"]
+    Router -->|Assignment| Assignment["Assignment Task Assistant<br/>Understand assignment difficulty"]
+    Router -->|Both| Stress
+    Router -->|Both| Assignment
 
-    StressNeeded -->|Yes| Stress["Stress Assistant<br/>Retrieve permitted student data<br/>Calculate weighted stress score<br/>Classify Stable, Rising or High Risk<br/>Explain causes and confidence"]
-    StressNeeded -->|No| AssignmentNeeded{"Assignment support<br/>needed?"}
+    Stress --> Calculator["Stress Calculation Engine<br/>Schedule pressure: 35%<br/>Deadline urgency: 25%<br/>Exam demand: 15%<br/>Behaviour change: 15%<br/>Student check-in: 10%"]
+    Data[("Supabase PostgreSQL<br/>Schedules, deadlines, health summaries,<br/>screen time, check-ins and assignments")] <--> Calculator
 
-    Database[("Supabase PostgreSQL<br/>Schedule, deadlines, health summaries,<br/>check-ins and assignments")] --> Stress
+    Calculator --> Level["Stress Result<br/>Stable, Rising or High Risk<br/>Main causes and confidence"]
+    Level --> Safety{"Immediate safety<br/>concern?"}
+    Safety -->|Yes| Support["Stop productivity advice<br/>Show university or emergency support"]
+    Safety -->|No| Response["AI Response Coordinator"]
 
-    Stress --> Safety{"Immediate safety<br/>concern?"}
-    Safety -->|Yes| Support["Stop productivity advice<br/>Display university or emergency support"]
-    Safety -->|No| AssignmentNeeded
-
-    AssignmentNeeded -->|Yes| Assignment["Assignment Task Assistant<br/>Retrieve deadline, importance,<br/>progress and available time"]
-    AssignmentNeeded -->|No| Coordinator["AI Response Coordinator<br/>Combine explanations and assistance"]
-
-    Database --> Assignment
-    Assignment --> EnoughInfo{"Enough assignment<br/>information?"}
-    EnoughInfo -->|No| Ask["Ask the student for<br/>missing information"]
-    EnoughInfo -->|Yes| Breakdown["Break assignment into steps<br/>Estimate duration and priority<br/>Create a proposed study plan"]
-    Breakdown --> Coordinator
-
-    Coordinator --> Change{"Schedule change<br/>proposed?"}
-    Change -->|No| Advice["Display explanation<br/>and recommended actions"]
-    Change -->|Yes| Gate["Feasibility Gate<br/>Check deadlines, fixed commitments,<br/>sleep, recovery, conflicts and capacity"]
-
+    Assignment --> Breakdown["Task Breakdown Engine<br/>Create steps<br/>Estimate duration<br/>Set priorities"]
+    Data <--> Breakdown
+    Breakdown --> Gate["Feasibility Gate<br/>Check deadlines, fixed commitments,<br/>recovery time, conflicts and capacity"]
     Gate --> Feasible{"Plan feasible?"}
-    Feasible -->|No| Shortfall["Explain the shortfall<br/>Suggest extension, delegation<br/>or renegotiation"]
-    Feasible -->|Yes| Preview["Show before-and-after preview"]
 
+    Feasible -->|No| Shortfall["Explain remaining shortfall<br/>Suggest extension, delegation<br/>or renegotiation"]
+    Feasible -->|Yes| Preview["Show proposed plan preview"]
     Preview --> Approval{"Student approves?"}
-    Approval -->|Yes| Save["Save approved plan<br/>in Supabase PostgreSQL"]
-    Approval -->|No| Unchanged["Keep current schedule unchanged"]
+    Approval -->|Yes| Save["Save approved plan"]
+    Approval -->|No| Unchanged["Keep schedule unchanged"]
 
-    Support --> Response["Return response through<br/>the AI Chat Box"]
-    Ask --> Response
-    Advice --> Response
+    Save --> Data
+    Support --> Response
     Shortfall --> Response
     Save --> Response
     Unchanged --> Response
 
-    Response --> End(( ))
+    Response --> Result["AI Chat Box<br/>Display explanation, advice or plan"]
+    Result --> End(( ))
 
     classDef endpoint fill:#000000,stroke:#000000,color:#000000;
     class End endpoint;
