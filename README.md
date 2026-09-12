@@ -218,7 +218,7 @@ LUMO uses a lightweight Android mobile architecture that separates AI assistance
 
 ![LUMO System Architecture](assets/lumo-system-architecture.png)
 
-The image above is the polished architecture diagram from the submission PDF. The Mermaid diagram below provides a text-friendly version.
+The Mermaid diagram below provides a text-friendly version of the architecture.
 
 ```mermaid
 flowchart LR
@@ -240,7 +240,7 @@ The architecture keeps AI assistance, planning logic, and student approval separ
 
 The initial build prioritises a complete end-to-end LUMO Android application, with external integrations and advanced personalisation implemented according to available API access and Android permissions.
 
-| Build area | Prototype deliverable |
+| Build area | Deliverable |
 | --- | --- |
 | Connection | Permission-based input of tasks, deadlines, commitments, and optional wellbeing context, using connected sources where available and controlled sample data where access is restricted. |
 | AI Analyse | Workload analysis that identifies approaching deadlines, limited available time, schedule conflicts, and meaningful changes from usual patterns. |
