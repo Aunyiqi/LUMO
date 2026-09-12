@@ -1,6 +1,5 @@
-LUMO AI Chat Box Architecture
-
-The AI Chat Box provides one interface for two specialised services. The Intent Router sends stress-related questions to the Stress Assistant and assignment-related questions to the Assignment Task Assistant. When a question involves both issues, both assistants contribute to a single coordinated response.
+<details>
+<summary>View editable Mermaid source</summary>
 
 flowchart TD
     Student([Student]) --> App["LUMO Mobile App"]
@@ -42,3 +41,5 @@ flowchart TD
 
     classDef endpoint fill:#000000,stroke:#000000,color:#000000;
     class End endpoint;
+
+</details>
