@@ -1,31 +1,130 @@
+@startuml
+title LUMO AI Chat Box Architecture
 
-```mermaid
-flowchart TD
-    Student([Student]) --> App["LUMO Mobile App<br/>Manage connections<br/>Manual input<br/>Review synchronised data"]
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam ArrowColor #222222
+skinparam activityBorderColor #555555
+skinparam activityBackgroundColor #F7F7F7
+skinparam activityDiamondBackgroundColor white
+skinparam activityDiamondBorderColor #222222
 
-    App -->|Connect or disconnect| Consent["Connection and Consent Manager<br/>Grant or revoke permission"]
+start
 
-    Consent -->|OAuth permission| Calendar(["Google Calendar API"])
-    Consent -->|API or ICS access| Moodle(["Moodle API or<br/>Subscribed ICS URL"])
-    Consent -->|Start first synchronisation| Trigger["Automatic Sync Trigger<br/>Initial sync<br/>Scheduled sync<br/>Source update"]
-    Consent -->|Device permission| Phone["Phone Device APIs<br/>Health data<br/>Screen-time data"]
+:Student sends a question through
+the LUMO Mobile App;
 
-    Calendar -->|Calendar events| Collection["Data Collection Service<br/>Retrieve permitted information"]
-    Moodle -->|Academic events| Collection
-    Trigger -->|Start automatic synchronisation| Collection
-    Phone -->|Device summaries| Collection
-    App -->|Manual input| Collection
+:AI Chat Box receives the message;
 
-    Collection -->|Retrieved data| Validation["Validation and Normalisation<br/>Check required fields<br/>Standardise date and time<br/>Classify data source"]
+:Intent and Context Router
+Identifies Stress Support,
+Assignment Support, or Both;
 
-    Validation -->|Valid records| Duplicate["Duplicate Detection<br/>Check source ID and event ID"]
+if (Stress support needed?) then (Yes)
 
-    Duplicate -->|New or changed records| Upsert["Database Upsert Service<br/>INSERT new records<br/>UPDATE existing records"]
+  partition "Stress Assistant" {
 
-    Upsert -->|Insert or update| Database[("Supabase PostgreSQL<br/>Users<br/>Connections<br/>Commitments<br/>Deadlines<br/>Daily summaries<br/>Sync history")]
+    :Retrieve permitted schedule, health,
+    screen-time and check-in data
+    from Supabase PostgreSQL;
 
-    Database -->|Synchronisation result| Status["Sync Status<br/>Successful<br/>Failed<br/>Last synchronised time"]
+    :Stress Calculation Engine
+    Calculate the weighted stress score;
 
-    Status -->|Display status and data| App
-    Phone -.->|Optional health and screen-time summaries| App
-```
+    :Classify the result as
+    Stable, Rising or High Risk;
+
+    :Ask a focused question
+    if important context is missing;
+
+    :Explain the main causes
+    and confidence level;
+  }
+
+endif
+
+if (Assignment support needed?) then (Yes)
+
+  partition "Assignment Task Assistant" {
+
+    :Retrieve the assignment deadline,
+    importance, available time
+    and current progress;
+
+    if (Enough assignment information?) then (Yes)
+
+      :Break the assignment into
+      manageable steps;
+
+      :Estimate the duration and
+      priority of each step;
+
+      :Create a proposed study plan;
+
+    else (No)
+
+      :Ask the student for
+      the missing information;
+
+    endif
+  }
+
+endif
+
+if (Immediate safety concern reported?) then (Yes)
+
+  :Stop productivity advice and display
+  university or emergency support information;
+
+else (No)
+
+  :AI Response Coordinator
+  Combines the stress explanation
+  and assignment assistance;
+
+  if (Schedule change proposed?) then (Yes)
+
+    partition "Feasibility Gate" {
+
+      :Check deadlines, fixed commitments,
+      sleep, recovery, conflicts and capacity;
+    }
+
+    if (Proposed plan feasible?) then (Yes)
+
+      :Show the before-and-after preview;
+
+      if (Student approves the plan?) then (Yes)
+
+        :Save the approved plan
+        in Supabase PostgreSQL;
+
+      else (No)
+
+        :Keep the current schedule unchanged;
+
+      endif
+
+    else (No)
+
+      :Explain the remaining shortfall and suggest
+      an extension, delegation or renegotiation;
+
+    endif
+
+  else (No)
+
+    :Display the explanation
+    and recommended actions;
+
+  endif
+
+endif
+
+:Return the response through
+the AI Chat Box;
+
+stop
+
+@enduml
