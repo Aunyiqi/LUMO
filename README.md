@@ -109,7 +109,7 @@ Shows how the initial ideas evolved from workload visibility and optional person
 
 | Consultation | Feedback received | What changed |
 | --- | --- | --- |
-| 6 September 2026<br>Sim Hong Bing | Add supporting data and competitor research.<br><br>Deepen the role of AI in the standout feature.<br><br>Focus on one main feature.<br><br>Simplify the pitch and emphasise benefits. | Added supporting evidence and compared LUMO with existing solutions.<br><br>Developed Lighten My Load into an AI agent that clarifies obstacles, selects relevant assistance, and checks proposed changes against deadlines, available capacity, and protected commitments.<br><br>Prioritised Lighten My Load, supported by load understanding and recovery.<br><br>Restructured the pitch around the solution and its key benefits. |
+| 6 September 2026<br>Sim Hong Bing | <ul><li>Add supporting data and competitor research.</li><li>Deepen the role of AI in the standout feature.</li><li>Focus on one main feature.</li><li>Simplify the pitch and emphasise benefits.</li></ul> | <ul><li>Added supporting evidence and compared LUMO with existing solutions.</li><li>Developed Lighten My Load into an AI agent that clarifies obstacles, selects relevant assistance, and checks proposed changes against deadlines, available capacity, and protected commitments.</li><li>Prioritised Lighten My Load, supported by load understanding and recovery.</li><li>Restructured the pitch around the solution and its key benefits.</li></ul> |
 
 ## 3. Design and Prototype
 
@@ -121,22 +121,47 @@ LUMO is designed as a mobile-first experience that helps students understand the
 
 The six key interactions are:
 
-`Connect & Understand -> Analyse -> LUMO AI Agent -> Lighten My Load -> Guided Recovery -> Step Outside`
+`Connect -> AI Analyse -> AI Assistance -> Lighten My Load -> Recovery Support -> Progress Insights`
 
-Students can understand what is contributing to their load, ask for practical assistance, review feasible schedule adjustments, and choose recovery support while remaining in control of any changes.
+Students can connect permission-based data sources, understand their current workload through AI analysis, receive practical assistance for assignments, review personalised schedule adjustments, choose suitable recovery activities, and track their wellbeing and workload patterns over time. Students remain in control of their connected data and any suggested changes.
 
 ### Key prototype screens
 
-<!-- All six requested prototype screens are linked below. -->
+#### Home - Understand My Load
 
-| Screen | Interaction | Asset placeholder |
-| --- | --- | --- |
-| Home - Understand My Load | At-a-glance view of current status, with quick access to calendar, tasks, insights, and self-care features. | [prototype-home.png](assets/prototype-home.png) |
-| Connect Your Data | Connect calendars, learning platforms, and optional device data with permission; disconnect sources at any time. | [prototype-connect-data.png](assets/prototype-connect-data.png) |
-| LUMO AI Agent | Ask for help when stuck; LUMO understands the situation and suggests personalised, practical next steps. | [prototype-ai-agent.png](assets/prototype-ai-agent.png) |
-| Agent-Assisted Planning | Review scheduling pressure and feasible adjustments before applying changes with student approval. | [prototype-planning.png](assets/prototype-planning.png) |
-| Gentle Recovery | Choose a short calming activity such as breathing, peaceful sounds, or mindful reflection. | [prototype-gentle-recovery.png](assets/prototype-gentle-recovery.png) |
-| Active Recovery | Step away from the current environment through options such as a short walk or outdoor break. | [prototype-active-recovery.png](assets/prototype-active-recovery.png) |
+<p align="center"><img src="assets/prototype-home.png" alt="Home - Understand My Load" width="280"></p>
+
+Provides an at-a-glance view of the student's current status, with quick access to their calendar, tasks, insights, and self-care features.
+
+#### Connect Your Data
+
+<p align="center"><img src="assets/prototype-connect-data.png" alt="Connect Your Data" width="280"></p>
+
+Connects calendars, learning platforms, and optional device data with permission. Students can disconnect sources at any time.
+
+#### LUMO AI Agent
+
+<p align="center"><img src="assets/prototype-ai-agent.png" alt="LUMO AI Agent overview" width="280"><img src="assets/prototype-ai-agent-assignment.png" alt="LUMO AI Agent assignment plan" width="280"></p>
+
+Lets students ask for help when stuck. LUMO understands the situation and suggests personalised, practical next steps.
+
+#### Agent-Assisted Planning
+
+<p align="center"><img src="assets/prototype-planning.png" alt="Agent-Assisted Planning" width="280"></p>
+
+Identifies scheduling pressure and proposes feasible adjustments. Changes are previewed and applied only with the student's approval.
+
+#### Gentle Recovery
+
+<p align="center"><img src="assets/prototype-gentle-recovery.png" alt="Gentle Recovery" width="280"></p>
+
+For moderate-pressure moments, students can choose a short calming activity such as breathing, peaceful sounds, or mindful reflection.
+
+#### Workload Insights
+
+<p align="center"><img src="assets/prototype-workload-insights.png" alt="Workload Insights" width="280"></p>
+
+Shows how workload and wellbeing signals change over time, helping students recognise patterns and better understand their current load.
 
 ### Design principles
 
@@ -162,26 +187,32 @@ Unlike tools that primarily track wellbeing, organise tasks, or automatically re
 
 ## 5. Technical Architecture and Feasibility
 
-LUMO uses a lightweight mobile-first architecture that separates AI assistance from deterministic planning checks. AI understands the student's context and suggests actions, while deadlines, capacity, conflicts, and protected commitments are validated before any schedule change is presented for approval.
+LUMO uses a lightweight Android mobile architecture that separates AI assistance from deterministic planning checks. AI understands the student's context and suggests actions, while deadlines, capacity, conflicts, and protected commitments are validated before any schedule change is presented for approval.
 
 ### Tech stack
 
 | Layer | Technology | Purpose |
 | --- | --- | --- |
-| Frontend | Flutter (Dart) | Cross-platform mobile interface for LUMO. |
+| Frontend | Flutter (Dart) | Android mobile application interface for LUMO. |
 | Database | Supabase (PostgreSQL) | Stores user profiles, tasks, commitments, workload data, and feedback. |
 | Authentication | Supabase Auth | Secure sign-in and account management. |
-| Backend | Supabase Edge Functions | Secure server-side logic and external API requests. |
-| AI | OpenAI API | Workload-context understanding and task-specific assistance. |
+| Backend | Supabase Edge Functions | Handles secure server-side logic and external API requests. |
+| AI | OpenAI API | Supports workload-context understanding and task-specific assistance. |
 | Planning logic | Dart / Edge Functions | Checks deadlines, available capacity, conflicts, and protected commitments. |
-| External data | Calendar / LMS / optional device data | Provides workload context with student permission. |
-| Deployment | Vercel and Supabase | Hosts the Flutter Web prototype and backend services. |
+| External Data Integration | Calendar / LMS / optional device data | Provides workload context with student permission. |
+| App Build & Distribution | Flutter Android / APK | Builds the LUMO prototype as an Android application for testing and demonstration. |
+| Backend Hosting | Supabase | Hosts the database, authentication and backend services. |
 
 ### Why this stack?
 
-Flutter enables rapid cross-platform development from a single codebase. Supabase provides PostgreSQL, authentication, and backend services without requiring a separate server. OpenAI supports context-aware assistance, while deterministic planning logic handles feasibility checks rather than relying on AI alone.
-
-The prototype primarily uses free-tier or publicly accessible services. Where an integration requires institutional access, specific platform permissions, or an unavailable API, controlled sample data is used to simulate the required functionality.
+| Technology | Why chosen | Expected constraints / mitigation |
+| --- | --- | --- |
+| Flutter | Enables rapid cross-platform development from a single codebase. | Some device integrations and permissions differ across platforms; the prototype focuses on Android. |
+| Supabase | Combines PostgreSQL, authentication, and server-side functions in one platform, reducing backend setup. | Free-tier usage and resource limits apply; this is sufficient for prototype-scale usage but may require a paid tier if scaled. |
+| Supabase Edge Functions | Provides secure server-side processing without maintaining a separate backend server. | External API calls add network latency, but keep sensitive API keys server-side rather than exposing them in the app. |
+| OpenAI API | Provides context-aware AI capabilities for the Lighten My Load agent. | API usage is paid and responses may have latency or variability; deterministic planning rules are used for feasibility checks rather than relying solely on AI. |
+| Google Calendar API / LMS API | Reduces manual input by retrieving relevant academic and scheduling information. | Requires user permission, while LMS/API availability may depend on institutional access. Controlled sample data can be used where access is unavailable. |
+| Optional Device Data | Provides additional context from permitted device data where available. | Availability depends on device capabilities, platform permissions, and accessible APIs; this integration remains optional. |
 
 ### System architecture
 
@@ -203,11 +234,11 @@ flowchart LR
     App -->|student approval| Plan
 ```
 
-The architecture keeps AI assistance, planning logic, and student approval separate. External data provides context, the AI agent generates relevant assistance, and the planning layer validates proposed adjustments before they are shown to the student.
+The architecture keeps AI assistance, planning logic, and student approval separate. External data provides context with student permission, while the AI agent generates relevant assistance and the planning engine validates proposed adjustments against deadlines, available capacity, and conflicts. Changes are presented to the student for review and are only applied after approval.
 
 ### Build plan and scope
 
-The initial build prioritises a complete end-to-end LUMO experience, with external integrations and advanced personalisation implemented according to platform access and available permissions.
+The initial build prioritises a complete end-to-end LUMO Android application, with external integrations and advanced personalisation implemented according to available API access and Android permissions.
 
 | Build area | Prototype deliverable |
 | --- | --- |
@@ -303,6 +334,14 @@ flowchart TD
     Compose --> Chat
 ```
 
+LUMO's AI agent works as one connected system with three functions branching from a single router:
+
+- **Natural-language CRUD:** Lets students create, read, update, or delete their own records by typing naturally.
+- **Stress and workload analysis:** Gathers signals such as deadlines, sleep, screen time, and schedule conflicts; compares them with the student's normal patterns; scores them transparently; and classifies the result as stable, rising, or high risk with a confidence level. If the data is too thin, LUMO asks for confirmation rather than guessing, making this a risk assessment rather than a diagnosis.
+- **Study helper:** Detects when stress comes from an academic struggle, retrieves relevant course material, and provides a step-by-step explanation.
+
+All three functions share the same database and feed into one shared response, so insights from one function can inform the others over time.
+
 ## 6. Scope Boundaries and Future Extensions
 
 ### In scope and out of scope
@@ -320,11 +359,11 @@ flowchart TD
 
 ### Future extensions
 
-Future versions can add live Moodle integration, automatic calendar synchronisation, full HealthKit and Health Connect support, screen-time analysis, longer-term personal pattern learning, and wider university deployment.
+Future versions can add live Moodle integration, automatic calendar synchronisation, deeper Health Connect integration, device-usage analysis, longer-term personal pattern learning, and wider university deployment.
 
 ### Core prototype flow
 
-`CONNECT -> ANALYSE -> UNDERSTAND -> REBALANCE -> RECOVER -> REASSESS`
+`UNDERSTAND -> ASSIST -> CHECK FEASIBILITY -> APPROVE -> RECOVER -> LEARN`
 
 ## 7. References
 
