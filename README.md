@@ -1,130 +1,48 @@
-@startuml
-title LUMO AI Chat Box Architecture
+flowchart TD
+    Student([Student]) --> App["LUMO Mobile App"]
+    App --> Chat["AI Chat Box<br/>Receive student question"]
+    Chat --> Router["Intent and Context Router<br/>Identify required support"]
 
-skinparam backgroundColor white
-skinparam shadowing false
-skinparam defaultFontName Arial
-skinparam ArrowColor #222222
-skinparam activityBorderColor #555555
-skinparam activityBackgroundColor #F7F7F7
-skinparam activityDiamondBackgroundColor white
-skinparam activityDiamondBorderColor #222222
+    Router --> StressNeeded{"Stress support<br/>needed?"}
 
-start
+    StressNeeded -->|Yes| Stress["Stress Assistant<br/>Retrieve permitted student data<br/>Calculate weighted stress score<br/>Classify Stable, Rising or High Risk<br/>Explain causes and confidence"]
+    StressNeeded -->|No| AssignmentNeeded{"Assignment support<br/>needed?"}
 
-:Student sends a question through
-the LUMO Mobile App;
+    Database[("Supabase PostgreSQL<br/>Schedule, deadlines, health summaries,<br/>check-ins and assignments")] --> Stress
 
-:AI Chat Box receives the message;
+    Stress --> Safety{"Immediate safety<br/>concern?"}
+    Safety -->|Yes| Support["Stop productivity advice<br/>Display university or emergency support"]
+    Safety -->|No| AssignmentNeeded
 
-:Intent and Context Router
-Identifies Stress Support,
-Assignment Support, or Both;
+    AssignmentNeeded -->|Yes| Assignment["Assignment Task Assistant<br/>Retrieve deadline, importance,<br/>progress and available time"]
+    AssignmentNeeded -->|No| Coordinator["AI Response Coordinator<br/>Combine explanations and assistance"]
 
-if (Stress support needed?) then (Yes)
+    Database --> Assignment
+    Assignment --> EnoughInfo{"Enough assignment<br/>information?"}
+    EnoughInfo -->|No| Ask["Ask the student for<br/>missing information"]
+    EnoughInfo -->|Yes| Breakdown["Break assignment into steps<br/>Estimate duration and priority<br/>Create a proposed study plan"]
+    Breakdown --> Coordinator
 
-  partition "Stress Assistant" {
+    Coordinator --> Change{"Schedule change<br/>proposed?"}
+    Change -->|No| Advice["Display explanation<br/>and recommended actions"]
+    Change -->|Yes| Gate["Feasibility Gate<br/>Check deadlines, fixed commitments,<br/>sleep, recovery, conflicts and capacity"]
 
-    :Retrieve permitted schedule, health,
-    screen-time and check-in data
-    from Supabase PostgreSQL;
+    Gate --> Feasible{"Plan feasible?"}
+    Feasible -->|No| Shortfall["Explain the shortfall<br/>Suggest extension, delegation<br/>or renegotiation"]
+    Feasible -->|Yes| Preview["Show before-and-after preview"]
 
-    :Stress Calculation Engine
-    Calculate the weighted stress score;
+    Preview --> Approval{"Student approves?"}
+    Approval -->|Yes| Save["Save approved plan<br/>in Supabase PostgreSQL"]
+    Approval -->|No| Unchanged["Keep current schedule unchanged"]
 
-    :Classify the result as
-    Stable, Rising or High Risk;
+    Support --> Response["Return response through<br/>the AI Chat Box"]
+    Ask --> Response
+    Advice --> Response
+    Shortfall --> Response
+    Save --> Response
+    Unchanged --> Response
 
-    :Ask a focused question
-    if important context is missing;
+    Response --> End(( ))
 
-    :Explain the main causes
-    and confidence level;
-  }
-
-endif
-
-if (Assignment support needed?) then (Yes)
-
-  partition "Assignment Task Assistant" {
-
-    :Retrieve the assignment deadline,
-    importance, available time
-    and current progress;
-
-    if (Enough assignment information?) then (Yes)
-
-      :Break the assignment into
-      manageable steps;
-
-      :Estimate the duration and
-      priority of each step;
-
-      :Create a proposed study plan;
-
-    else (No)
-
-      :Ask the student for
-      the missing information;
-
-    endif
-  }
-
-endif
-
-if (Immediate safety concern reported?) then (Yes)
-
-  :Stop productivity advice and display
-  university or emergency support information;
-
-else (No)
-
-  :AI Response Coordinator
-  Combines the stress explanation
-  and assignment assistance;
-
-  if (Schedule change proposed?) then (Yes)
-
-    partition "Feasibility Gate" {
-
-      :Check deadlines, fixed commitments,
-      sleep, recovery, conflicts and capacity;
-    }
-
-    if (Proposed plan feasible?) then (Yes)
-
-      :Show the before-and-after preview;
-
-      if (Student approves the plan?) then (Yes)
-
-        :Save the approved plan
-        in Supabase PostgreSQL;
-
-      else (No)
-
-        :Keep the current schedule unchanged;
-
-      endif
-
-    else (No)
-
-      :Explain the remaining shortfall and suggest
-      an extension, delegation or renegotiation;
-
-    endif
-
-  else (No)
-
-    :Display the explanation
-    and recommended actions;
-
-  endif
-
-endif
-
-:Return the response through
-the AI Chat Box;
-
-stop
-
-@enduml
+    classDef endpoint fill:#000000,stroke:#000000,color:#000000;
+    class End endpoint;
