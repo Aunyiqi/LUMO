@@ -1,3 +1,7 @@
+UMO AI Chat Box Architecture
+
+The LUMO AI Chat Box is a single student interface that routes each message to the Stress Assistant, Assignment Task Assistant, or both services. A deterministic engine calculates the stress estimate, while the AI explains the result, breaks assignments into manageable steps, and proposes only changes that pass the Feasibility Gate and receive student approval.
+
 flowchart TD
     Student([Student]) --> App["LUMO Mobile App"]
     App --> Chat["AI Chat Box<br/>Receive student question"]
