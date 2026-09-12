@@ -1,4 +1,3 @@
-# LUMO Automatic Data Synchronisation Architecture
 
 ```mermaid
 flowchart TD
