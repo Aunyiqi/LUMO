@@ -7,9 +7,9 @@
 ![LUMO logo](assets/lumo-logo.png)
 
 <!-- TODO: Replace these placeholders with the final public links. -->
-- **Video presentation:** `[Unlisted YouTube link]`
-- **Presentation slides:** `[Public link]`
-- **UI prototype:** `[Public link]`
+- **Video presentation:** `https://www.youtube.com/watch?v=Sb0bEMkLL6k`
+- **Presentation slides:** `https://canva.link/fkyjt7osf713fp1`
+- **UI prototype:** `https://canva.link/hkwctr40s0876th`
 
 ## 1. Project Overview
 
